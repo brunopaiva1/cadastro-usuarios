@@ -36,6 +36,24 @@ public class App {
                 }
                 break;
 
+            case "delete":
+                if (args.length != 2) {
+                    System.out.println("Erro: Para excluir, use o formato: delete <id>");
+                    return;
+                }
+                try {
+                    int id = Integer.parseInt(args[1]);
+                    boolean sucesso = dao.excluir(id);
+                    if (sucesso) {
+                        System.out.println("Usuário com ID " + id + " foi excluído com sucesso!");
+                    } else {
+                        System.out.println("Usuário com ID " + id + " não encontrado.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Erro: O ID fornecido não é um número válido.");
+                }
+                break;
+
             default:
                 System.out.println("Erro: Comando '" + comando + "' não reconhecido.");
                 mostrarAjuda();
@@ -47,5 +65,6 @@ public class App {
         System.out.println("Uso do programa:");
         System.out.println("  java -jar seu-app.jar add <nome> <email> <senha>");
         System.out.println("  java -jar seu-app.jar list");
+        System.out.println("  java -jar seu-app.jar delete <id>");
     }
 }

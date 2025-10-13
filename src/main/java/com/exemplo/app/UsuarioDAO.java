@@ -53,4 +53,20 @@ public class UsuarioDAO {
         }
         return usuarios;
     }
+
+    public boolean excluir(int id) {
+        String sql = "DELETE FROM usuarios WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, id);
+            
+            int linhasAfetadas = ps.executeUpdate();
+            return linhasAfetadas > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
