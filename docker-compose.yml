@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  cadastro:
+    build: .
+    container_name: cadastro_usuarios
+    volumes:
+      - ./data:/app/data
+    command: ["java", "-jar", "app.jar"]
