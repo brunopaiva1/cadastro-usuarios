@@ -6,24 +6,50 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    private static final String URL = "jdbc:sqlite:data/usuarios.db";
+    private String dbUrl;
+    private String dbUser;
+    private String dbPassword;
 
     public UsuarioDAO() {
-        try (Connection conn = DriverManager.getConnection(URL)) {
-            String sql = "CREATE TABLE IF NOT EXISTS usuarios (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "nome TEXT NOT NULL," +
-                    "email TEXT UNIQUE NOT NULL," +
-                    "senha TEXT NOT NULL)";
-            conn.createStatement().execute(sql);
+        String host = System.getenv("DB_HOST");
+        String port = System.getenv("DB_PORT");
+        String dbName = System.getenv("DB_NAME");
+        this.dbUser = System.getenv("DB_USER");
+        this.dbPassword = System.getenv("DB_PASSWORD");
+
+        this.dbUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
+
+        criarTabelaSeNaoExistir();
+    }
+    
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(this.dbUrl, this.dbUser, this.dbPassword);
+    }
+
+    private void criarTabelaSeNaoExistir() {
+        String sql = "CREATE TABLE IF NOT EXISTS usuarios (" +
+                "id SERIAL PRIMARY KEY," +
+                "nome TEXT NOT NULL," +
+                "email TEXT UNIQUE NOT NULL," +
+                "senha TEXT NOT NULL)";
+        
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Falha ao conectar ao banco de dados para criar tabela. Tentando novamente em 5 segundos...");
+            try {
+                Thread.sleep(5000); 
+                criarTabelaSeNaoExistir(); 
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
     public void adicionar(Usuario u) {
         String sql = "INSERT INTO usuarios(nome, email, senha) VALUES (?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(URL);
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, u.getNome());
             ps.setString(2, u.getEmail());
@@ -36,8 +62,8 @@ public class UsuarioDAO {
 
     public List<Usuario> listar() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "SELECT * FROM usuarios";
-        try (Connection conn = DriverManager.getConnection(URL);
+        String sql = "SELECT * FROM usuarios ORDER BY id";
+        try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -56,14 +82,11 @@ public class UsuarioDAO {
 
     public boolean excluir(int id) {
         String sql = "DELETE FROM usuarios WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
             ps.setInt(1, id);
-            
             int linhasAfetadas = ps.executeUpdate();
             return linhasAfetadas > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
