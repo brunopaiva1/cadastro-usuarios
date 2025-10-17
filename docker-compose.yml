@@ -1,31 +1,14 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:16-alpine  
-    container_name: postgres_db
-    restart: always
-    environment:
-      - POSTGRES_USER=bruno
-      - POSTGRES_PASSWORD=senhaforte
-      - POSTGRES_DB=cadastro_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
   cadastro:
     build: .
-    container_name: cadastro_app
+    container_name: cadastro_app_cliente
     restart: on-failure
-    depends_on:
-      - db
     environment:
-      - DB_HOST=db
+      - DB_HOST=200.137.6.73
       - DB_PORT=5432
       - DB_NAME=cadastro_db
       - DB_USER=bruno
-      - DB_PASSWORD=senhaforte
+      - DB_PASSWORD=GABASDEV
     entrypoint: ["java", "-jar", "app.jar"]
-
-volumes:
-  postgres_data: 
