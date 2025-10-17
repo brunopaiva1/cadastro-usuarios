@@ -6,7 +6,7 @@ services:
     container_name: cadastro_app_cliente
     restart: on-failure
     environment:
-      - DB_HOST=200.137.6.73
+      - DB_HOST=10.194.208.132
       - DB_PORT=5432
       - DB_NAME=cadastro_db
       - DB_USER=bruno
