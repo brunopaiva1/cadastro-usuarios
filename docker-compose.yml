@@ -3,12 +3,8 @@ version: '3.8'
 services:
   cadastro:
     build: .
-    container_name: cadastro_app_cliente
-    restart: on-failure
-    environment:
-      - DB_HOST=200.137.6.73
-      - DB_PORT=5432
-      - DB_NAME=cadastro_db
-      - DB_USER=bruno
-      - DB_PASSWORD=GABASDEV
+    container_name: cadastro_usuarios
+    volumes:
+      - ./data:/app/data
     entrypoint: ["java", "-jar", "app.jar"]
+    
